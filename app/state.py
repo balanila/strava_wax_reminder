@@ -16,6 +16,7 @@ class State:
     last_alert_date: str | None = None
     last_check_date: str | None = None
     strava_refresh_token: str | None = None
+    language: str = "en"
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], default_interval_km: float) -> "State":
@@ -27,6 +28,7 @@ class State:
             last_alert_date=data.get("last_alert_date"),
             last_check_date=data.get("last_check_date"),
             strava_refresh_token=data.get("strava_refresh_token"),
+            language=str(data.get("language", "en")),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,4 +65,3 @@ class StateStore:
             file.flush()
             os.fsync(file.fileno())
         os.replace(temp_path, self.path)
-

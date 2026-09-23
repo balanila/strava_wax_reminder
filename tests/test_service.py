@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from app.mileage import MileageReading
-from app.service import ChainWaxService
+from app.service import ChainWaxService, render_status
 from app.state import StateStore
 
 
@@ -33,6 +33,13 @@ def test_after_wax_command_sets_last_wax(service: ChainWaxService) -> None:
     state = service.set_wax(12910)
 
     assert state.last_wax_km == 12910
+
+
+def test_set_language_and_render_status(service: ChainWaxService) -> None:
+    state = service.set_language("ru")
+
+    assert state.language == "ru"
+    assert "Последняя проварка" in render_status(state)
 
 
 @pytest.mark.asyncio

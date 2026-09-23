@@ -90,12 +90,25 @@ docker compose down
 
 ## Telegram Commands
 
+The bot supports English, Romanian, and Russian. `/start` opens the language picker. The selected language is stored in `state.json` and is used for command replies, menu buttons, and daily alerts.
+
+The bot also shows a Telegram reply keyboard with buttons for the main actions:
+
+- status;
+- check now;
+- wax now;
+- language;
+- help.
+
+Slash commands remain available:
+
 - `/status` - show current mileage, last wax mileage, interval, and remaining distance.
 - `/wax` - fetch current Strava mileage and save it as the latest wax mileage.
 - `/wax 12910` - manually save wax mileage.
 - `/wax 12910.5` - decimal values are supported.
 - `/interval 450` - change the service interval. Valid range: `50-5000` km.
 - `/check` - force a Strava refresh and show status.
+- `/language` - choose English, Romanian, or Russian.
 - `/help` - show available commands.
 
 On first startup, if `last_wax_km` is not set, reminders are not sent. Use `/wax` or `/wax <mileage>`.
@@ -150,6 +163,7 @@ Example:
   "interval_km": 500,
   "last_alert_date": "2026-09-23",
   "last_check_date": "2026-09-23",
+  "language": "en",
   "strava_refresh_token": "..."
 }
 ```
