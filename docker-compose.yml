@@ -1,0 +1,8 @@
+services:
+  chain-wax-bot:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data

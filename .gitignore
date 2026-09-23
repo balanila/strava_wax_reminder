@@ -1,0 +1,44 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Packaging/build output
+build/
+dist/
+*.egg-info/
+
+# Runtime state
+data/*
+!data/.gitkeep
+*.log
+
+# Docker/local compose overrides
+docker-compose.override.yml
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+

@@ -1,0 +1,2 @@
+"""Chain wax reminder bot."""
+
