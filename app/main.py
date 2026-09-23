@@ -1,21 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 
 from app.bot import build_application, send_alert
 from app.config import Config
+from app.logging_utils import configure_logging
 from app.service import ChainWaxService
 from app.state import StateStore
 from app.strava import StravaClient
-
-
-def configure_logging() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
 
 
 async def main() -> None:
@@ -48,4 +40,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-
