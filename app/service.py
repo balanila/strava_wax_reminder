@@ -7,6 +7,7 @@ from datetime import datetime, time, timedelta
 from typing import Awaitable, Callable
 from zoneinfo import ZoneInfo
 
+from app.i18n import get_texts, normalize_language
 from app.mileage import apply_mileage_reading, distance_since_wax, should_alert
 from app.state import State, StateStore
 from app.strava import StravaClient, StravaUnavailable
@@ -24,47 +25,49 @@ def format_km(value: float | None) -> str:
 
 
 def render_status(state: State) -> str:
+    texts = get_texts(state.language)
     current = state.logical_total_km
     last_wax = state.last_wax_km
     next_wax = None if last_wax is None else last_wax + state.interval_km
     distance = distance_since_wax(current, last_wax)
 
     lines = [
-        f"🚴 Текущий пробег: {format_km(current)} км" if current is not None else "🚴 Текущий пробег: не задан",
-        f"🫕 Последняя проварка: {format_km(last_wax)}" + (" км" if last_wax is not None else ""),
+        f"{texts.current_mileage}: {format_km(current)} {texts.km}" if current is not None else texts.current_not_set,
+        f"{texts.last_wax}: {format_km(last_wax)}" + (f" {texts.km}" if last_wax is not None else ""),
     ]
 
     if last_wax is None:
         lines.append("")
-        lines.append("Используй /wax или /wax <пробег>")
+        lines.append(texts.wax_hint)
         return "\n".join(lines)
 
     lines.extend(
         [
-            f"📏 После проварки: {format_km(distance)} км",
-            f"🎯 Интервал: {format_km(state.interval_km)} км",
+            f"{texts.distance_since_wax}: {format_km(distance)} {texts.km}",
+            f"{texts.interval}: {format_km(state.interval_km)} {texts.km}",
         ]
     )
     if distance is not None and distance >= state.interval_km:
-        lines.append(f"⚠️ Перепробег: {format_km(distance - state.interval_km)} км")
-    lines.append(f"➡️ Следующая проварка: {format_km(next_wax)} км")
+        lines.append(f"{texts.overrun}: {format_km(distance - state.interval_km)} {texts.km}")
+    lines.append(f"{texts.next_wax}: {format_km(next_wax)} {texts.km}")
     if distance is not None and distance < state.interval_km:
-        lines.append(f"⏳ Осталось: {format_km(state.interval_km - distance)} км")
+        lines.append(f"{texts.remaining}: {format_km(state.interval_km - distance)} {texts.km}")
     return "\n".join(lines)
 
 
 def render_alert(state: State) -> str:
+    texts = get_texts(state.language)
     distance = distance_since_wax(state.logical_total_km, state.last_wax_km)
     over = None if distance is None else distance - state.interval_km
     return "\n".join(
         [
-            "⚠️ Пора проварить цепь",
+            texts.alert_title,
             "",
-            f"🚴 Текущий пробег: {format_km(state.logical_total_km)} км",
-            f"🫕 Последняя проварка: {format_km(state.last_wax_km)} км",
-            f"📏 После проварки: {format_km(distance)} км",
-            f"🎯 Интервал: {format_km(state.interval_km)} км",
-            f"⚠️ Перепробег: {format_km(over)} км",
+            f"{texts.current_mileage}: {format_km(state.logical_total_km)} {texts.km}",
+            f"{texts.last_wax}: {format_km(state.last_wax_km)} {texts.km}",
+            f"{texts.distance_since_wax}: {format_km(distance)} {texts.km}",
+            f"{texts.interval}: {format_km(state.interval_km)} {texts.km}",
+            f"{texts.overrun}: {format_km(over)} {texts.km}",
         ]
     )
 
@@ -111,6 +114,12 @@ class ChainWaxService:
             raise ValueError("Interval must be between 50 and 5000 km")
         state = self.state_store.load()
         state.interval_km = interval_km
+        self.state_store.save(state)
+        return state
+
+    def set_language(self, language: str) -> State:
+        state = self.state_store.load()
+        state.language = normalize_language(language)
         self.state_store.save(state)
         return state
 
