@@ -42,6 +42,8 @@ jobs:
           DEFAULT_INTERVAL_KM=500
           TZ=Europe/Chisinau
           DATA_DIR=./data
+          PUID=1000
+          PGID=1000
           EOF
 
       - name: Validate docker compose config
@@ -72,6 +74,8 @@ jobs:
           DATA_DIR: ${{ vars.DATA_DIR }}
         run: |
           DATA_DIR="${DATA_DIR:-$HOME/chain-wax-bot-data}"
+          PUID="$(id -u)"
+          PGID="$(id -g)"
           mkdir -p "$DATA_DIR"
           chmod 700 "$DATA_DIR"
           cat > .env <<EOF
@@ -85,6 +89,8 @@ jobs:
           DEFAULT_INTERVAL_KM=${DEFAULT_INTERVAL_KM}
           TZ=${TZ}
           DATA_DIR=${DATA_DIR}
+          PUID=${PUID}
+          PGID=${PGID}
           EOF
           chmod 600 .env
 
