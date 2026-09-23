@@ -140,6 +140,14 @@ For production deployment, set `DATA_DIR` to a persistent directory outside the 
 /opt/chain-wax-bot-data
 ```
 
+The compose file runs the container with `PUID` and `PGID` from `.env`:
+
+```text
+user: "${PUID:-1000}:${PGID:-1000}"
+```
+
+During GitHub Actions deployment these values are generated from the self-hosted runner user with `id -u` and `id -g`. This lets the container write to `DATA_DIR` without making the state directory world-writable.
+
 Example:
 
 ```json
@@ -285,6 +293,15 @@ For production, `DATA_DIR` should point to a persistent directory on the home se
 ```
 
 The deploy job creates this directory if it does not exist and mounts it into the container as `/app/data`.
+
+If you created `DATA_DIR` manually and the container reports `PermissionError: [Errno 13] Permission denied: '/app/data/state.json'`, fix ownership on the server:
+
+```bash
+sudo chown -R "$(id -u):$(id -g)" /opt/chain-wax-bot-data
+chmod 700 /opt/chain-wax-bot-data
+```
+
+Run those commands as the same Linux user that runs the GitHub Actions self-hosted runner service.
 
 ### How Deployment Works
 
