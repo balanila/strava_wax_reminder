@@ -16,6 +16,10 @@ class State:
     last_alert_date: str | None = None
     last_check_date: str | None = None
     strava_refresh_token: str | None = None
+    year_km: float | None = None
+    month_km: float | None = None
+    week_km: float | None = None
+    periods_date: str | None = None
     language: str = "en"
 
     @classmethod
@@ -28,6 +32,10 @@ class State:
             last_alert_date=data.get("last_alert_date"),
             last_check_date=data.get("last_check_date"),
             strava_refresh_token=data.get("strava_refresh_token"),
+            year_km=_optional_float(data.get("year_km")),
+            month_km=_optional_float(data.get("month_km")),
+            week_km=_optional_float(data.get("week_km")),
+            periods_date=data.get("periods_date"),
             language=str(data.get("language", "en")),
         )
 

@@ -75,8 +75,14 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     config: Config = context.application.bot_data["config"]
     if await _reject_if_unauthorized(update, config):
         return
-    state = _service(context).state_store.load()
-    await update.effective_message.reply_text(render_status(state), reply_markup=main_keyboard(state))
+    service = _service(context)
+    try:
+        state = await service.update_mileage()
+        text = render_status(state)
+    except StravaUnavailable:
+        state = service.state_store.load()
+        text = f"{get_texts(state.language).strava_unavailable_check}\n\n{render_status(state)}"
+    await update.effective_message.reply_text(text, reply_markup=main_keyboard(state))
 
 
 async def wax_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -193,7 +199,7 @@ async def text_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
     texts = get_texts(state.language)
     action = _button_labels().get(text)
     if action == "status":
-        await message.reply_text(render_status(state), reply_markup=main_keyboard(state))
+        await status_command(update, context)
     elif action == "check":
         await check_command(update, context)
     elif action == "wax":

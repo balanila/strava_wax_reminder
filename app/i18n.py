@@ -24,6 +24,11 @@ class Texts:
     wax_button: str
     language_button: str
     help_button: str
+    this_year: str
+    this_month: str
+    this_week: str
+    periods_as_of: str
+    period_unavailable: str
     current_mileage: str
     last_wax: str
     distance_since_wax: str
@@ -51,6 +56,12 @@ class Texts:
 
 TEXTS = {
     "en": Texts(
+        this_year="This year",
+        this_month="This month",
+        this_week="This week",
+        periods_as_of="Cycling mileage as of",
+        period_unavailable="unavailable",
+
         choose_language="Choose language:",
         language_saved="✅ Language saved: English",
         main_menu="Main menu",
@@ -95,6 +106,12 @@ TEXTS = {
         km="km",
     ),
     "ro": Texts(
+        this_year="Anul acesta",
+        this_month="Luna aceasta",
+        this_week="Săptămâna aceasta",
+        periods_as_of="Distanță cu bicicleta la data de",
+        period_unavailable="indisponibil",
+
         choose_language="Alege limba:",
         language_saved="✅ Limba a fost salvată: Română",
         main_menu="Meniu principal",
@@ -139,6 +156,12 @@ TEXTS = {
         km="km",
     ),
     "ru": Texts(
+        this_year="За этот год",
+        this_month="За этот месяц",
+        this_week="За эту неделю",
+        periods_as_of="Велопробег на дату",
+        period_unavailable="недоступно",
+
         choose_language="Выбери язык:",
         language_saved="✅ Язык сохранён: Русский",
         main_menu="Главное меню",

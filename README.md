@@ -18,13 +18,21 @@ A small home-server Telegram bot that reads cycling mileage from Strava and remi
 1. Open https://www.strava.com/settings/api.
 2. Create a Strava API application.
 3. Save the `Client ID` and `Client Secret`.
-4. Generate a refresh token with permission to read athlete stats.
+4. Generate a refresh token with permission to read athlete stats and `activity:read_all` to include private rides in monthly/weekly mileage.
 5. Find your `STRAVA_ATHLETE_ID`.
 
 The bot calls:
 
 - `POST https://www.strava.com/oauth/token` to get a short-lived access token.
 - `GET https://www.strava.com/api/v3/athletes/{athlete_id}/stats` to get cycling totals.
+
+- `GET https://www.strava.com/api/v3/athlete/activities` to calculate month/week cycling mileage (paginated, 200 activities per request).
+
+`/status`, the Status button, and `/check` refresh the statistics from Strava. If Strava is unavailable, Status still shows the saved values. The status includes cycling mileage for the current calendar year, month, and week, with the date of the reading. Months start on the 1st and weeks on Monday at midnight in the configured `TZ` (default: `Europe/Chisinau`). Year mileage comes from `ytd_ride_totals.distance`; month/week mileage sums cycling activities (including virtual rides and e-bikes) since the earlier of the month/week boundaries. Runs and other sports are excluded. An empty activity list displays zero.
+
+The activity endpoint requires `activity:read`; private (Only Me) activities require `activity:read_all`. See the [Strava API reference](https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities). Without access, or if the activity request fails, month/week mileage displays “unavailable”; total/year mileage and wax reminders continue to work. With only `activity:read`, private rides are omitted from month/week totals.
+
+For an existing token without these permissions, authorize the Strava application again requesting `activity:read_all`, exchange the authorization code for tokens, and update `STRAVA_REFRESH_TOKEN` in the deployment secrets. The bot prefers the rotated refresh token saved in `DATA_DIR/state.json`: stop the bot and remove only the `strava_refresh_token` field from that file before restarting with the new token. Keep the rest of the state to preserve wax history. The existing CI/CD workflow needs no changes.
 
 The preferred source is `all_ride_totals.distance`. If that is unavailable, the bot falls back to `ytd_ride_totals.distance`.
 
