@@ -81,3 +81,21 @@ async def test_update_mileage_preserves_refresh_token(service: ChainWaxService) 
     state = await service.update_mileage()
 
     assert state.strava_refresh_token == "new-refresh-token"
+
+
+@pytest.mark.asyncio
+async def test_periods_saved_and_rendered(service):
+    class PeriodClient:
+        async def get_mileage(self):
+            return MileageReading(13000, "all_time", year_km=1000, month_km=200,
+                                  week_km=0, periods_date="2026-11-17")
+    service.strava_client = PeriodClient()
+    service.set_language("ru")
+    await service.update_mileage()
+    state = service.state_store.load()
+    text = render_status(state)
+    assert "За этот год: 1 000 км" in text
+    assert "За этот месяц: 200 км" in text
+    assert "За эту неделю: 0 км" in text
+    assert "2026-11-17" in text
+    assert state.logical_total_km == 13000

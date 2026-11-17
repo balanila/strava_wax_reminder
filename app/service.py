@@ -36,6 +36,17 @@ def render_status(state: State) -> str:
         f"{texts.last_wax}: {format_km(last_wax)}" + (f" {texts.km}" if last_wax is not None else ""),
     ]
 
+    if state.periods_date is not None:
+        lines.extend(["", f"{texts.periods_as_of}: {state.periods_date}"])
+        for label, value in (
+            (texts.this_year, state.year_km),
+            (texts.this_month, state.month_km),
+            (texts.this_week, state.week_km),
+        ):
+            formatted = texts.period_unavailable if value is None else f"{format_km(value)} {texts.km}"
+            lines.append(f"{label}: {formatted}")
+        lines.append("")
+
     if last_wax is None:
         lines.append("")
         lines.append(texts.wax_hint)
@@ -83,6 +94,10 @@ class ChainWaxService:
         reading = await self.strava_client.get_mileage()
         state = self.state_store.load()
         logical_total = apply_mileage_reading(state, reading)
+        state.year_km = reading.year_km
+        state.month_km = reading.month_km
+        state.week_km = reading.week_km
+        state.periods_date = reading.periods_date
         state.last_check_date = datetime.now(self.timezone).date().isoformat()
         self.state_store.save(state)
         logger.info("Strava mileage updated: %.1f km", logical_total)

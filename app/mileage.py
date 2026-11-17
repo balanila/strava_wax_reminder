@@ -12,6 +12,10 @@ logger = logging.getLogger(__name__)
 class MileageReading:
     km: float
     source: str
+    year_km: float | None = None
+    month_km: float | None = None
+    week_km: float | None = None
+    periods_date: str | None = None
 
 
 def apply_mileage_reading(state: State, reading: MileageReading) -> float:
